@@ -71,6 +71,8 @@ export const COUNTRY_DETAILS: Record<string, {
     subtitle: string;
     description: string;
     features: string[];
+    image: string;
+    flag: string;
 }> = {
     uk: {
         title: "United Kingdom",
@@ -81,7 +83,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "World-Leading Universities & Research (Oxford, Cambridge, etc.)",
             "A Multicultural Hub enriching your global perspective",
             "Gateway to Europe & Beyond"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?q=80&w=1920&auto=format&fit=crop", // London
+        flag: "https://flagcdn.com/w320/gb.png"
     },
     fr: {
         title: "France",
@@ -92,7 +96,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Home to world-renowned Grandes Écoles",
             "Post-Study Work Opportunities for graduates",
             "Strong Focus on Industry Links and internships"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1920&auto=format&fit=crop", // Paris
+        flag: "https://flagcdn.com/w320/fr.png"
     },
     de: {
         title: "Germany",
@@ -103,7 +109,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "World-Leading in Engineering & Technology",
             "18-Month Post-Study Work Visa",
             "Strong Economy with opportunities at companies like Siemens, VW"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?q=80&w=1920&auto=format&fit=crop", // Neuschwanstein/Germany
+        flag: "https://flagcdn.com/w320/de.png"
     },
     ie: {
         title: "Ireland",
@@ -114,7 +122,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Global Hub for Tech & Innovation",
             "English-Speaking Advantage in the EU",
             "World-Class Universities like Trinity College Dublin"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1590089415225-401ed6f9db8e?q=80&w=1920&auto=format&fit=crop", // Cliffs of Moher
+        flag: "https://flagcdn.com/w320/ie.png"
     },
     pt: {
         title: "Portugal",
@@ -125,7 +135,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Safe, Sunny, and High Quality of Life",
             "Rising Hub for Technology & Innovation",
             "Post-Study Work Opportunities for non-EU graduates"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1555881400-74d7acaacd81?q=80&w=1920&auto=format&fit=crop", // Lisbon
+        flag: "https://flagcdn.com/w320/pt.png"
     },
     cy: {
         title: "Cyprus",
@@ -136,7 +148,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "English-Taught Programs in an EU Setting",
             "Pathway to European Opportunities",
             "Straightforward Admissions Process"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1530847936278-f725c8b66f27?q=80&w=1920&auto=format&fit=crop", // Cyprus Coast
+        flag: "https://flagcdn.com/w320/cy.png"
     },
     ge: {
         title: "Georgia",
@@ -147,7 +161,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "High-Quality, English-Medium Education (MBBS recognized by WHO)",
             "Simple & Straightforward Admissions Process",
             "Safe, Welcoming, and Culturally Rich"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1565008447742-97f6f38c985c?q=80&w=1920&auto=format&fit=crop", // Tbilisi
+        flag: "https://flagcdn.com/w320/ge.png"
     },
     mt: {
         title: "Malta",
@@ -158,7 +174,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "High-Quality EU Education",
             "Growing Hub for iGaming & Finance",
             "Gateway to Europe & North Africa"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1563050860-87d45ea6610d?q=80&w=1920&auto=format&fit=crop", // Valletta
+        flag: "https://flagcdn.com/w320/mt.png"
     },
     ca: {
         title: "Canada",
@@ -169,7 +187,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "World-Class Education & Research Powerhouse",
             "Multicultural and Inclusive Society",
             "Safe, Stable, and High Quality of Life"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1503614472-8c93d56e92ce?q=80&w=1920&auto=format&fit=crop", // Banff/Lake
+        flag: "https://flagcdn.com/w320/ca.png"
     },
     au: {
         title: "Australia",
@@ -180,7 +200,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Post-Study Work Rights & Pathways",
             "Thriving Job Market in Key Sectors",
             "Outstanding Quality of Life"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1523482580672-01e6f2eb8ca1?q=80&w=1920&auto=format&fit=crop", // Sydney
+        flag: "https://flagcdn.com/w320/au.png"
     },
     nz: {
         title: "New Zealand",
@@ -191,7 +213,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Exceptional Post-Study Work Pathways",
             "Work Rights During Studies",
             "Unparalleled Focus on Student Well-being"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1507699622177-388898d99032?q=80&w=1920&auto=format&fit=crop", // NZ Landscape
+        flag: "https://flagcdn.com/w320/nz.png"
     },
     se: {
         title: "Sweden",
@@ -202,7 +226,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Post-Study Work Opportunities (up to 12 months)",
             "Strong English-Taught Program Offerings",
             "Collaborative & Student-Centric Learning"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1509356843151-3e7d96241e11?q=80&w=1920&auto=format&fit=crop", // Stockholm
+        flag: "https://flagcdn.com/w320/se.png"
     },
     fi: {
         title: "Finland",
@@ -213,7 +239,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Post-Study Work Opportunities",
             "A Leader in Technology & Sustainability",
             "Unmatched Quality of Life & Safety"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1521319253456-14c1eb02b4fc?q=80&w=1920&auto=format&fit=crop", // Finland Nature
+        flag: "https://flagcdn.com/w320/fi.png"
     },
     us: {
         title: "United States",
@@ -224,7 +252,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Optional Practical Training (OPT) Opportunities",
             "Home to World's Top-Ranked Universities",
             "Pathway to a Global Career Network"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1550565118-2a7642654ac2?q=80&w=1920&auto=format&fit=crop", // NYC
+        flag: "https://flagcdn.com/w320/us.png"
     },
     cn: {
         title: "China",
@@ -235,7 +265,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "World-Class Research & Modern Facilities",
             "Strategic Career Advantage in 2nd largest economy",
             "Exclusive September Intake"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1543946207-397198a278ad?q=80&w=1920&auto=format&fit=crop", // Great Wall
+        flag: "https://flagcdn.com/w320/cn.png"
     },
     it: {
         title: "Italy",
@@ -246,7 +278,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Global Leader in Design, Architecture & Engineering",
             "Post-Study Opportunities in the Heart of Europe",
             "English-Taught Programs Increasingly Available"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?q=80&w=1920&auto=format&fit=crop", // Venice
+        flag: "https://flagcdn.com/w320/it.png"
     },
     es: {
         title: "Spain",
@@ -257,7 +291,9 @@ export const COUNTRY_DETAILS: Record<string, {
             "Post-Study Opportunities in a Dynamic EU Economy",
             "Unbeatable Quality of Life & Cultural Richness",
             "Gateway to the Spanish-Speaking World"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1543783207-ec64e4d95325?q=80&w=1920&auto=format&fit=crop", // Madrid
+        flag: "https://flagcdn.com/w320/es.png"
     },
     pk: {
         title: "Pakistan",
@@ -268,6 +304,8 @@ export const COUNTRY_DETAILS: Record<string, {
             "Registered with SECP",
             "Tax-Filing Organization",
             "Nationwide Student Base"
-        ]
+        ],
+        image: "https://images.unsplash.com/photo-1599307481232-a42319208753?q=80&w=1920&auto=format&fit=crop", // Faisalabad/Clock Tower or general Pak
+        flag: "https://flagcdn.com/w320/pk.png"
     }
 };

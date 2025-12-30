@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useMemo } from 'react';
 import createGlobe from 'cobe';
 import { COUNTRIES } from '../constants';
-import { useNavigate } from 'react-router-dom';
+// Note: We are not using navigate inside here anymore, the parent handles selection for animation
+
+interface GlobeProps {
+    onCountrySelect: (id: string) => void;
+}
 
 // Visual dataset for global context - Augmented with AZM specific countries
 const WORLD_COUNTRIES = [
@@ -34,18 +38,18 @@ const WORLD_COUNTRIES = [
   { name: "Italy", coordinates: [41.8719, 12.5674] },
 ];
 
-export const Globe3D: React.FC = () => {
+export const Globe3D: React.FC<GlobeProps> = ({ onCountrySelect }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   // Interaction State
   const pointerInteracting = useRef(false);
-  const pointerInteractionStart = useRef({ x: 0, y: 0 });
-  const pointerRotationStart = useRef({ phi: 0, theta: 0 });
+  const pointerInteractionStart = useRef({ x: 0 });
+  const pointerRotationStart = useRef(0);
   
-  // Rotation State
+  // Rotation State - PHI is horizontal rotation (Longitude)
   const phiRef = useRef(0);
+  // THETA is vertical (Latitude). Fixed to look slightly down at the globe.
   const thetaRef = useRef(0.3);
 
   // References for DOM elements
@@ -55,7 +59,7 @@ export const Globe3D: React.FC = () => {
   const mapData = useMemo(() => {
     const processed: {
         name: string;
-        coordinates: [number, number];
+        coordinates: [number, number]; // Lat, Lon
         id?: string;
         isOperating: boolean;
     }[] = [];
@@ -104,60 +108,77 @@ export const Globe3D: React.FC = () => {
 
     const globe = createGlobe(canvasRef.current, {
       devicePixelRatio: 2,
-      width: 600 * 2,
-      height: 600 * 2,
+      width: 800 * 2, // Bigger render area
+      height: 800 * 2,
       phi: 0,
       theta: 0.3,
       dark: 1, 
-      diffuse: 2, 
-      mapSamples: 16000,
-      mapBrightness: 12, 
-      baseColor: [0.1, 0.1, 0.15], 
+      diffuse: 1.2, // Defined lighting
+      mapSamples: 20000, // Dots density
+      mapBrightness: 6, 
+      baseColor: [0.15, 0.15, 0.25], // Dark ocean
       markerColor: [0.1, 0.1, 0.15],
-      glowColor: [0.3, 0.1, 0.1], // Reddish glow for AZM theme
+      glowColor: [0.05, 0.05, 0.1], // Subtle glow, not "hallucination"
       markers: [], 
       onRender: (state) => {
+        // Auto-rotation (real planet spin)
         if (!pointerInteracting.current) {
-            phiRef.current += 0.002;
+            phiRef.current += 0.001; // Slow constant spin
         }
 
         state.phi = phiRef.current;
-        state.theta = thetaRef.current;
+        state.theta = thetaRef.current; // Locked vertical axis
         
-        const r = 250; 
-        const cx = 300;
-        const cy = 300;
+        // Globe dimensions in the canvas
+        const r = 320; 
+        const cx = 400; // Center X of canvas
+        const cy = 400; // Center Y of canvas
         
         mapData.forEach((country, i) => {
            const el = markersRef.current[i];
            if (!el) return;
 
-           const lat = country.coordinates[0] * Math.PI / 180;
-           const lng = (country.coordinates[1] * Math.PI / 180) + state.phi;
+           // Coordinate conversion:
+           // Lat: +90 (North) to -90 (South)
+           // Cobe Theta: 0 (North) to PI (South)
+           const lat = country.coordinates[0];
+           const lon = country.coordinates[1];
            
-           const cy_angle = lat;
-           const cx_angle = lng; 
+           const phi = (lon * Math.PI) / 180;
+           const theta = ((90 - lat) * Math.PI) / 180;
+
+           // Calculate 3D position
+           // Cobe's internal rotation handling:
+           // We need to account for state.phi (globe rotation)
+           const currentPhi = phi + state.phi;
            
-           const x = Math.cos(cy_angle) * Math.sin(cx_angle);
-           const y = Math.sin(cy_angle);
-           const z = Math.cos(cy_angle) * Math.cos(cx_angle);
+           const x = r * Math.sin(theta) * Math.cos(currentPhi);
+           const y = r * Math.cos(theta);
+           const z = r * Math.sin(theta) * Math.sin(currentPhi);
            
-           const theta = state.theta;
+           // Apply tilt (state.theta) to the 3D point
+           // Standard 3D rotation matrix for X-axis tilt
+           const tilt = state.theta;
+           const y_rot = y * Math.cos(tilt) - z * Math.sin(tilt);
+           const z_rot = y * Math.sin(tilt) + z * Math.cos(tilt);
            
-           const y_rot = y * Math.cos(theta) - z * Math.sin(theta);
-           const z_rot = y * Math.sin(theta) + z * Math.cos(theta);
+           // Project to 2D screen
+           const screenX = cx + x;
+           const screenY = cy - y_rot;
            
-           const screenX = cx + x * r;
-           const screenY = cy - y_rot * r;
+           // Visibility check (is it on the front side?)
+           // z_rot > 0 means it's facing the camera in this projection space? 
+           // Cobe is a bit tricky, typically z > 0 is front.
+           // Let's refine based on Cobe's projection logic approximation.
            
            if (z_rot > 0) {
-              const scale = 0.6 + 0.4 * z_rot; 
-              const opacity = Math.min(1, Math.pow(z_rot, 1.5) * 3);
+              const scale = Math.max(0.5, 1 * (z_rot / r)); 
+              const opacity = Math.min(1, Math.pow(z_rot / r, 2) * 5);
               
               el.style.opacity = opacity.toString();
               el.style.pointerEvents = 'auto';
               el.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${scale}) translate(-50%, -50%)`; 
-              el.style.zIndex = Math.floor(z_rot * 100).toString();
+              el.style.zIndex = Math.floor(z_rot).toString();
               el.style.display = 'block';
            } else {
               el.style.display = 'none';
@@ -174,18 +195,16 @@ export const Globe3D: React.FC = () => {
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     pointerInteracting.current = true;
-    pointerInteractionStart.current = { x: e.clientX, y: e.clientY };
-    pointerRotationStart.current = { phi: phiRef.current, theta: thetaRef.current };
+    pointerInteractionStart.current = { x: e.clientX };
+    pointerRotationStart.current = phiRef.current;
     if (containerRef.current) containerRef.current.style.cursor = 'grabbing';
   };
 
   const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (pointerInteracting.current) {
         const deltaX = e.clientX - pointerInteractionStart.current.x;
-        const deltaY = e.clientY - pointerInteractionStart.current.y;
-        
-        phiRef.current = pointerRotationStart.current.phi + deltaX * 0.005;
-        thetaRef.current = pointerRotationStart.current.theta - deltaY * 0.005;
+        // Only modify Phi (Horizontal rotation)
+        phiRef.current = pointerRotationStart.current + deltaX * 0.005;
     }
   };
 
@@ -197,7 +216,7 @@ export const Globe3D: React.FC = () => {
   return (
     <div 
         ref={containerRef} 
-        className="w-full h-full flex items-center justify-center relative overflow-hidden"
+        className="absolute right-0 top-0 bottom-0 w-full md:w-[60%] h-full flex items-center justify-center overflow-hidden z-10"
         style={{ cursor: 'grab', touchAction: 'none' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -206,40 +225,46 @@ export const Globe3D: React.FC = () => {
     >
         <canvas
           ref={canvasRef}
-          style={{ width: 600, height: 600, maxWidth: '100%', aspectRatio: '1' }}
+          style={{ width: 800, height: 800, maxWidth: 'none' }}
           className="opacity-100"
         />
         
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2" 
+        <div className="absolute top-0 left-0 w-[800px] h-[800px] pointer-events-none transform -translate-x-1/2 -translate-y-1/2" 
              style={{ left: '50%', top: '50%' }}>
           {mapData.map((country, index) => (
             <div
               key={`${country.name}-${index}`}
               ref={(el) => { markersRef.current[index] = el; }}
-              className={`absolute whitespace-nowrap text-center transition-colors duration-300 ${
+              className={`absolute whitespace-nowrap text-center transition-all duration-300 group ${
                   country.isOperating 
-                    ? 'cursor-pointer pointer-events-auto hover:text-red-400 hover:scale-110' 
-                    : 'pointer-events-none'
+                    ? 'cursor-pointer pointer-events-auto z-50' 
+                    : 'pointer-events-none z-0'
               }`}
               onClick={() => {
                   if (country.isOperating && country.id) {
-                      navigate(`/country/${country.id}`);
+                      onCountrySelect(country.id);
                   }
               }}
             >
-              <span className={`
-                block text-xs md:text-sm tracking-wide
+              {/* Country Dot */}
+              <div className={`
+                mx-auto rounded-full transition-all duration-300
                 ${country.isOperating 
-                    ? 'text-white font-bold drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]' 
-                    : 'text-gray-500 font-medium opacity-70 text-[10px]'
+                    ? 'w-2 h-2 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] group-hover:bg-white group-hover:scale-150' 
+                    : 'w-1 h-1 bg-slate-600 opacity-20'
+                }
+              `}></div>
+
+              {/* Country Label */}
+              <span className={`
+                block text-xs mt-1 px-2 py-0.5 rounded-full transition-all duration-300
+                ${country.isOperating 
+                    ? 'text-white font-bold bg-black/40 backdrop-blur-sm border border-red-500/30 group-hover:bg-red-600 group-hover:border-red-500' 
+                    : 'hidden'
                 }
               `}>
                 {country.name}
               </span>
-              
-              {country.isOperating && (
-                 <div className="mx-auto w-1.5 h-1.5 bg-red-500 rounded-full mt-0.5 shadow-[0_0_8px_red]"></div>
-              )}
             </div>
           ))}
         </div>
